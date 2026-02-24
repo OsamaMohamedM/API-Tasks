@@ -13,15 +13,18 @@ namespace Task1.Models
         public string Name { get; set; }
 
         [Required]
+        public int Age { get; set; }
+
+        [Required]
         [StringLength(50)]
         public string PhoneNumber { get; set; }
 
         public DateTime CheckInDate { get; set; }
 
-        public Doctor Doctor { get; set; }
+        public Doctor? Doctor { get; set; }
 
         [ForeignKey(nameof(Doctor))]
-        public int DoctorId { get; set; }
+        public int? DoctorId { get; set; }
 
         public bool isRegistered { get; set; }
     }
