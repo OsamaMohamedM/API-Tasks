@@ -1,6 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using Task1.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LocalConnection")));
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllers().AddNewtonsoftJson();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

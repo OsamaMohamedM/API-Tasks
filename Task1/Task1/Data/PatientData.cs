@@ -17,7 +17,8 @@ namespace Task1.Data
                     PhoneNumber = "123-456-7890",
                     CheckInDate = DateTime.Now.AddDays(-1),
                     DoctorId = 1,
-                    isRegistered = true
+                    isRegistered = true,
+                    Age = 15
                 },
                 new Patient
                 {
@@ -26,7 +27,9 @@ namespace Task1.Data
                     PhoneNumber = "987-654-3210",
                     CheckInDate = DateTime.Now.AddDays(-2),
                     DoctorId = 2,
-                    isRegistered = false
+                    isRegistered = false,
+                     Age = 11
+
                 },
                 new Patient
                 {
@@ -35,7 +38,8 @@ namespace Task1.Data
                     PhoneNumber = "555-123-4567",
                     CheckInDate = DateTime.Now.AddDays(-3),
                     DoctorId = 1,
-                    isRegistered = true
+                    isRegistered = true,
+                     Age = 15
                 },
                 new Patient
                 {
@@ -44,7 +48,8 @@ namespace Task1.Data
                     PhoneNumber = "444-987-6543",
                     CheckInDate = DateTime.Now.AddDays(-4),
                     DoctorId = 2,
-                    isRegistered = false
+                    isRegistered = false,
+                     Age = 15
                 },
                 new Patient
                 {
@@ -53,7 +58,8 @@ namespace Task1.Data
                     PhoneNumber = "333-555-7777",
                     CheckInDate = DateTime.Now.AddDays(-5),
                     DoctorId = 1,
-                    isRegistered = true
+                    isRegistered = true,
+                     Age = 15
                 },
                 new Patient
                 {
@@ -62,7 +68,8 @@ namespace Task1.Data
                     PhoneNumber = "222-444-6666",
                     CheckInDate = DateTime.Now.AddDays(-6),
                     DoctorId = 2,
-                    isRegistered = false
+                    isRegistered = false,
+                     Age = 16
                 },
             };
 

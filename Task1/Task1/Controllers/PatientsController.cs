@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Task1.Data;
 using Task1.DTO;
 using Task1.Models;
+using Task1.Repository;
 
 namespace Task1.Controllers
 {
@@ -9,25 +9,32 @@ namespace Task1.Controllers
     [Route("api/[controller]")]
     public class PatientsController : ControllerBase
     {
-        [HttpGet]
-        public ActionResult<List<PatientDTO>> GetPatients()
-        {
-            var patients = PatientData.GetPatients()
-                .Select(p => new PatientDTO
-                {
-                    Name = p.Name,
-                    Age = p.Age,
-                    phoneNumber = p.PhoneNumber
-                }).ToList();
+        private readonly IUnitOfWork _unitOfWork;
 
-            return Ok(patients);
+        public PatientsController(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<PatientDTO>>> GetPatients()
+        {
+            var patients = await _unitOfWork.Patients.GetAllAsync();
+            var result = patients.Select(p => new PatientDTO
+            {
+                Name = p.Name,
+                Age = p.Age,
+                phoneNumber = p.PhoneNumber,
+                Id = p.Id,
+            }).ToList();
+
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<PatientDTO> GetPatient(int id)
+        public async Task<ActionResult<PatientDTO>> GetPatient(int id)
         {
-            var patient = PatientData.GetPatients()
-                                     .FirstOrDefault(p => p.Id == id);
+            var patient = await _unitOfWork.Patients.GetByIdAsync(id);
 
             if (patient == null)
             {
@@ -43,27 +50,27 @@ namespace Task1.Controllers
             return Ok(patientDto);
         }
 
-        [HttpPost()]
-        public ActionResult<PatientDTO> CreatePatient([FromBody] PatientDTO patient)
+        [HttpPost]
+        public async Task<ActionResult<PatientDTO>> CreatePatient([FromBody] PatientDTO patientDto)
         {
-            var patients = PatientData.GetPatients();
-            int nId = patients.Max(p => p.Id) + 1;
-            patient.Id = nId;
-            patients.Add(new Patient
+            var patient = new Patient
             {
-                Name = patient.Name,
-                Age = patient.Age,
-                PhoneNumber = patient.phoneNumber,
-                Id = nId
-            });
-            return CreatedAtAction(nameof(GetPatient), patient);
+                Name = patientDto.Name,
+                Age = patientDto.Age,
+                PhoneNumber = patientDto.phoneNumber
+            };
+
+            await _unitOfWork.Patients.AddAsync(patient);
+            await _unitOfWork.SaveChangesAsync();
+
+            patientDto.Id = patient.Id;
+            return Ok(patientDto);
         }
 
         [HttpPut]
-        public ActionResult<Patient> UpdatePatient(int id, [FromBody] Patient patient)
+        public async Task<ActionResult<Patient>> UpdatePatient(int id, [FromBody] Patient patient)
         {
-            var patients = PatientData.GetPatients();
-            var existingPatient = patients.FirstOrDefault(p => p.Id == id);
+            var existingPatient = await _unitOfWork.Patients.GetByIdAsync(id);
             if (existingPatient == null)
             {
                 return NotFound(new { Message = $"Invalid {patient.Id}" });
@@ -73,20 +80,23 @@ namespace Task1.Controllers
             existingPatient.CheckInDate = patient.CheckInDate;
             existingPatient.DoctorId = patient.DoctorId;
             existingPatient.isRegistered = patient.isRegistered;
+
+            _unitOfWork.Patients.Update(existingPatient);
+            await _unitOfWork.SaveChangesAsync();
             return Ok(existingPatient);
         }
 
         [HttpDelete]
-        public ActionResult DeletePatient(int id)
+        public async Task<ActionResult> DeletePatient(int id)
         {
-            var patients = PatientData.GetPatients();
-            var patient = patients.FirstOrDefault(p => p.Id == id);
+            var patient = await _unitOfWork.Patients.GetByIdAsync(id);
             if (patient == null)
             {
                 return NotFound(new { Message = $"Invalid {id}" });
             }
-            patients.Remove(patient);
-            return NoContent();
+            _unitOfWork.Patients.Delete(patient);
+            await _unitOfWork.SaveChangesAsync();
+            return Ok();
         }
     }
 }
