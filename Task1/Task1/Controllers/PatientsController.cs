@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Task1.DTO;
+using Task1.Helpers;
 using Task1.Models;
 using Task1.Repository;
 
@@ -97,6 +98,57 @@ namespace Task1.Controllers
             _unitOfWork.Patients.Delete(patient);
             await _unitOfWork.SaveChangesAsync();
             return Ok();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<PatientDTO>> PatchPatient(int id, [FromBody] UpdatePatientDTO updateDto)
+        {
+            var patient = await _unitOfWork.Patients.GetByIdAsync(id);
+            if (patient == null)
+            {
+                return NotFound(new { Message = $"Invalid {id}" });
+            }
+
+            if (updateDto.Name != null)
+                patient.Name = updateDto.Name;
+
+            if (updateDto.Age.HasValue)
+                patient.Age = updateDto.Age.Value;
+
+            if (updateDto.PhoneNumber != null)
+                patient.PhoneNumber = updateDto.PhoneNumber;
+
+            _unitOfWork.Patients.Update(patient);
+            await _unitOfWork.SaveChangesAsync();
+
+            var result = new PatientDTO
+            {
+                Id = patient.Id,
+                Name = patient.Name,
+                Age = patient.Age,
+                phoneNumber = patient.PhoneNumber
+            };
+            return Ok(result);
+        }
+
+        [HttpGet("paged")]
+        public async Task<ActionResult<PagedResult<PatientDTO>>> GetPatientsPaged([FromQuery] PaginationParams paginationParams)
+        {
+            var paged = await _unitOfWork.Patients.GetPagedAsync(paginationParams);
+            var result = new PagedResult<PatientDTO>
+            {
+                Data = paged.Data.Select(p => new PatientDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Age = p.Age,
+                    phoneNumber = p.PhoneNumber
+                }),
+                PageNumber = paged.PageNumber,
+                PageSize = paged.PageSize,
+                TotalCount = paged.TotalCount
+            };
+            return Ok(result);
         }
     }
 }

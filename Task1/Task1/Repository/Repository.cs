@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using Task1.Helpers;
 
 namespace Task1.Repository
 {
@@ -27,6 +28,23 @@ namespace Task1.Repository
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.Where(predicate).ToListAsync();
+        }
+
+        public async Task<PagedResult<T>> GetPagedAsync(PaginationParams paginationParams)
+        {
+            var totalCount = await _dbSet.CountAsync();
+            var items = await _dbSet
+                .Skip((paginationParams.PageNumber - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<T>
+            {
+                Data = items,
+                PageNumber = paginationParams.PageNumber,
+                PageSize = paginationParams.PageSize,
+                TotalCount = totalCount
+            };
         }
 
         public async Task AddAsync(T entity)
