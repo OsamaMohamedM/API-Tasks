@@ -3,6 +3,7 @@ using Authentication_Module.Domain.DTO;
 using Authentication_Module.Domain.Entities;
 using Authentication_Module.Domain.Interfaces.Repos;
 using Authentication_Module.Domain.Interfaces.Services;
+using Authentication_Module.Domain.Interfaces;
 
 namespace Authentication_Module.Infrastructure
 {
@@ -12,11 +13,14 @@ namespace Authentication_Module.Infrastructure
         private readonly ITokenService _tokenService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
 
-        public AuthService(IUserRepository userRepository, ITokenService tokenProvider, IRefreshTokenRepository refreshTokenRepository)
+        private readonly IEmailService _emailService;
+
+        public AuthService(IUserRepository userRepository, ITokenService tokenProvider, IRefreshTokenRepository refreshTokenRepository, IEmailService emailService)
         {
             _userRepository = userRepository;
             _tokenService = tokenProvider;
             _refreshTokenRepository = refreshTokenRepository;
+            _emailService = emailService;
         }
 
         public async Task<Result> RegisterAsync(RegisterDto request)
@@ -81,6 +85,52 @@ namespace Authentication_Module.Infrastructure
             await _refreshTokenRepository.SaveChangesAsync();
 
             return Result<TokenResponseDto>.Success(new TokenResponseDto(newAccessToken, newRefreshToken));
+        }
+
+        public async Task<Result<bool>> ForgotPasswordAsync(ForgotPasswordDto request)
+        {
+            var user = await _userRepository.GetByEmailAsync(request.Email);
+
+            if (user == null)
+            {
+                return Result<bool>.Success(true);
+            }
+
+            var resetToken = _tokenService.GenerateRefreshToken();
+
+            user.PasswordResetToken = resetToken;
+            user.PasswordResetTokenExpires = DateTime.UtcNow.AddHours(1);
+
+            await _userRepository.SaveChangesAsync();
+            await _emailService.SendPasswordResetEmailAsync(user.Email, resetToken);
+
+            return Result<bool>.Success(true);
+        }
+
+        public async Task<Result<bool>> ResetPasswordAsync(ResetPasswordDto request)
+        {
+            var user = await _userRepository.GetByPasswordResetTokenAsync(request.Token);
+
+            if (user == null || user.PasswordResetTokenExpires < DateTime.UtcNow)
+            {
+                return Result<bool>.Failure("Invalid or expired token.");
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpires = null;
+
+            var activeTokens = await _refreshTokenRepository.GetActiveByUserIdAsync(user.Id);
+
+            foreach (var token in activeTokens)
+            {
+                token.IsRevoked = true;
+            }
+
+            await _refreshTokenRepository.SaveChangesAsync();
+            await _userRepository.SaveChangesAsync();
+
+            return Result<bool>.Success(true);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Authentication_Module.Domain.DTO;
 using Authentication_Module.Domain.Interfaces.Services;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authentication_Module.Controllers
@@ -52,6 +53,27 @@ namespace Authentication_Module.Controllers
             }
 
             return Ok(result.Data);
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
+        {
+            await _authService.ForgotPasswordAsync(request);
+
+            return Ok(new { Message = "If the email exists in our system, a password reset link has been sent." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+        {
+            var result = await _authService.ResetPasswordAsync(request);
+
+            if (!result.IsSuccess)
+            {
+                return BadRequest(new { Error = result.ErrorMessage });
+            }
+
+            return Ok(new { Message = "Password has been reset successfully." });
         }
     }
 }

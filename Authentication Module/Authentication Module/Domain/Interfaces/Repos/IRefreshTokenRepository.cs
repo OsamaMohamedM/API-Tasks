@@ -9,5 +9,7 @@ namespace Authentication_Module.Domain.Interfaces.Repos
         Task AddAsync(RefreshToken refreshToken);
 
         Task SaveChangesAsync();
+
+        Task<List<RefreshToken>> GetActiveByUserIdAsync(int userId);
     }
 }
