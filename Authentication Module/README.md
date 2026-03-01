@@ -228,50 +228,6 @@ Authentication Module/
 7. **SQL Injection Protection** - Entity Framework parameterized queries
 8. **HTTPS Enforcement** - Secure communication in production
 
-## ⚠️ Known Issues & Required Fixes
-
-### CRITICAL - Must Fix Before Running
-
-#### 1. Configuration Mismatch in TokenService
-**Issue**: Code expects `Jwt:ExpirationHours` but config has `Jwt:ExpirationMinutes`
-
-**Fix Required**: Update `TokenService.cs` line 43
-```csharp
-// Change from:
-expires: DateTime.UtcNow.AddHours(double.Parse(_configuration["Jwt:ExpirationHours"]!))
-
-// To:
-expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpirationMinutes"]!))
-```
-
-**Or** update `appsettings.json`:
-```json
-"Jwt": {
-  "ExpirationHours": 1  // instead of ExpirationMinutes
-}
-```
-
-#### 2. Missing Null Checks in TwoFactorController
-**Issue**: No null check after `FindAsync` in both endpoints
-
-**Fix Required**: Add null checks:
-```csharp
-var user = await _context.Users.FindAsync(userId);
-if (user == null)
-{
-    return NotFound("User not found.");
-}
-```
-
-### Recommended Enhancements
-
-1. **Input Validation** - Add `[Required]` attributes to all DTO properties
-2. **2FA Integration in Login** - Check if user has 2FA enabled during login
-3. **Rate Limiting** - Prevent brute force attacks
-4. **Logging** - Add structured logging (Serilog)
-5. **Unit Tests** - Add comprehensive test coverage
-6. **Environment Variables** - Use User Secrets for development
-
 ## 🧪 Testing with Swagger
 
 1. Run the application
