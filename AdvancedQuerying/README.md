@@ -166,19 +166,3 @@ The database will be created automatically with sample data.
 ```
 
 **Note:** The `SecretManagerNotes` field is NEVER included in any response!
-
-## Testing Checklist
-
-- [x] SecretManagerNotes never exposed in API response
-- [x] Search term filters Title and Description
-- [x] Status filter works with exact match
-- [x] MinHours and MaxHours range filtering
-- [x] Sort by date (newest first)
-- [x] Sort by hours (ascending)
-- [x] Default sort by Id
-- [x] Pagination limits results
-- [x] Max page size enforced (50)
-- [x] Metadata includes TotalCount, TotalPages, CurrentPage
-- [x] Data shaping returns only requested fields
-- [x] No Where/OrderBy in Controller
-- [x] All queries use Specification pattern
