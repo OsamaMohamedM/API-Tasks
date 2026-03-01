@@ -1,8 +1,13 @@
-﻿namespace Authentication_Module.Domain.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Authentication_Module.Domain.DTO
 {
     public class RegisterDto
     {
         public string UserName { get; set; }
         public string Password { get; set; }
+
+        [EmailAddress]
+        public string Email { get; set; }
     }
 }

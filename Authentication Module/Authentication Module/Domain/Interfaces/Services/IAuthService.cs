@@ -7,10 +7,10 @@ namespace Authentication_Module.Domain.Interfaces.Services
     {
         Task<Result> RegisterAsync(RegisterDto request);
 
-        Task<Result<LoginResponseDto>> LoginAsync(LoginDto request);
+        Task<Result<TokenResponseDto>> LoginAsync(LoginDto request);
 
         Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenDto request);
-        
+
         Task<Result<bool>> ForgotPasswordAsync(ForgotPasswordDto request);
 
         Task<Result<bool>> ResetPasswordAsync(ResetPasswordDto request);

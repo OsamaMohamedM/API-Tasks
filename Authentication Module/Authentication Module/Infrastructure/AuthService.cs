@@ -36,7 +36,8 @@ namespace Authentication_Module.Infrastructure
             var user = new User
             {
                 Username = request.UserName,
-                PasswordHash = passwordHash
+                PasswordHash = passwordHash,
+                Email = request.Email
             };
 
             await _userRepository.AddAsync(user);
@@ -45,18 +46,29 @@ namespace Authentication_Module.Infrastructure
             return Result.Success();
         }
 
-        public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto request)
+        public async Task<Result<TokenResponseDto>> LoginAsync(LoginDto request)
         {
             var user = await _userRepository.GetByUserNameAsync(request.Username);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
-                return Result<LoginResponseDto>.Failure("Invalid UserName or password.");
+                return Result<TokenResponseDto>.Failure("Invalid UserName or password.");
             }
 
-            var token = _tokenService.GenerateAccessToken(user);
+            var accessToken = _tokenService.GenerateAccessToken(user);
+            var refreshToken = _tokenService.GenerateRefreshToken();
 
-            return Result<LoginResponseDto>.Success(new LoginResponseDto(token));
+            var refreshTokenEntity = new RefreshToken
+            {
+                UserId = user.Id,
+                Token = refreshToken,
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            };
+
+            await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+            await _refreshTokenRepository.SaveChangesAsync();
+
+            return Result<TokenResponseDto>.Success(new TokenResponseDto(accessToken, refreshToken));
         }
 
         public async Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenDto request)

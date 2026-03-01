@@ -39,7 +39,7 @@ namespace Authentication_Module.Infrastructure
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(double.Parse(_configuration["Jwt:ExpirationHours"]!)),
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpirationMinutes"]!)),
                 signingCredentials: creds
             );
 

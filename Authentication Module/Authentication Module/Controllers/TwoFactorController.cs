@@ -27,6 +27,11 @@ namespace Authentication_Module.Controllers
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var user = await _context.Users.FindAsync(userId);
 
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
             var secret = _2faService.GenerateSecret();
             user.TwoFactorSecret = secret;
             await _context.SaveChangesAsync();
@@ -41,6 +46,11 @@ namespace Authentication_Module.Controllers
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
 
             if (!_2faService.ValidateCode(user.TwoFactorSecret!, request.Code))
             {
