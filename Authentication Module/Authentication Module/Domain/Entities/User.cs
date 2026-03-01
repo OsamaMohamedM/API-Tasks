@@ -9,5 +9,7 @@
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetTokenExpires { get; set; }
         public string Role { get; set; } = "User";
+        public bool TwoFactorEnabled { get; set; }
+        public string? TwoFactorSecret { get; set; }
     }
 }
