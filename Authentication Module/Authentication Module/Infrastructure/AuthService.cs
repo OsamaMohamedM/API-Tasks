@@ -3,7 +3,6 @@ using Authentication_Module.Domain.DTO;
 using Authentication_Module.Domain.Entities;
 using Authentication_Module.Domain.Interfaces.Repos;
 using Authentication_Module.Domain.Interfaces.Services;
-using Authentication_Module.Domain.Interfaces;
 
 namespace Authentication_Module.Infrastructure
 {
