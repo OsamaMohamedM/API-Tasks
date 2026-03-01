@@ -22,7 +22,7 @@ This repository contains a collection of ASP.NET Core Web API projects demonstra
 The repository is organized into multiple tasks, each focusing on specific learning objectives:
 
 ### 1. Task1 - Repository Pattern & Unit of Work
-A foundational project implementing the Repository Pattern and Unit of Work pattern for data access.
+A foundational project implementing CRUD operation with the Repository Pattern and Unit of Work pattern for data access.
 
 **Features:**
 - Generic Repository implementation
