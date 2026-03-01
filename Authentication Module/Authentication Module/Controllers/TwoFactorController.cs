@@ -1,5 +1,6 @@
 using Authentication_Module.Domain.DTO;
 using Authentication_Module.Domain.Interfaces.Services;
+using Authentication_Module.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
